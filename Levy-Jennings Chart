@@ -1,0 +1,129 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import statistics
+from datetime import datetime
+import math
+
+# full_path = insert file path
+df = pd.read_excel(full_path)
+title_list = list(df.columns)
+title1 = title_list[1]
+title2 = title_list[2]
+title3 = title_list[3]
+title4 = title_list[4]
+
+x_tick = df.iloc[:, 0].tolist()
+if isinstance(x_tick[0], datetime):
+    x_tick = [i.date() for i in x_tick]
+
+for i in range(len(x_tick)):
+    if NaNorno(x_tick[i]):
+        x_tick[i] = 0
+
+x_tick = [i for i in x_tick if i != 0]
+
+
+
+x_tick = [str(i) for i in x_tick]
+x_tick = np.array(x_tick)
+
+E_value = df.iloc[:, 1].tolist()
+
+for i in range(len(E_value)):
+    if math.isnan(E_value[i]):
+        E_value[i] = -1
+E_value = [i for i in E_value if i != -1]
+E_value = [float(n) for n in E_value]
+
+E_values = np.array(E_value)
+
+N_value = df.iloc[:, 2].tolist()
+
+for i in range(len(N_value)):
+    if math.isnan(N_value[i]):
+        N_value[i] = -1
+N_value = [i for i in N_value if i != -1]
+N_value = [float(n) for n in N_value]
+N_values = np.array(N_value)
+
+ORF1ab_value = df.iloc[:, 3].tolist()
+
+for i in range(len(ORF1ab_value)):
+    if math.isnan(ORF1ab_value[i]):
+        ORF1ab_value[i] = -1
+ORF1ab_value = [i for i in ORF1ab_value if i != -1]
+ORF1ab_value = [float(n) for n in ORF1ab_value]
+ORF1ab_values = np.array(ORF1ab_value)
+
+
+x_value = []
+for i in range(len(x_tick)):
+    x_value.append(i)
+x_values = np.array(x_value)
+
+x1_value = []
+for i in range(len(x_tick)):
+    x1_value.append(i)
+x1_values = np.array(x1_value)
+
+x2_value = []
+for i in range(len(x_tick)):
+    x2_value.append(i)
+x2_values = np.array(x2_value)
+
+
+Estd = statistics.stdev(E_value)
+Emean = statistics.mean(E_value)
+
+Nstd = statistics.stdev(N_value)
+Nmean = statistics.mean(N_value)
+
+ORF1abstd = statistics.stdev(ORF1ab_value)
+ORF1abmean = statistics.mean(ORF1ab_value)
+
+plt.figure()
+plt.title(str(title4) + " " + str(title1))
+plt.yticks([Emean - 3 * Estd, Emean - 2 * Estd, Emean - Estd, Emean, Emean + Estd, Emean + 2 * Estd, Emean + 3 * Estd])
+plt.xticks(x_values, x_tick, rotation='vertical')
+plt.axhspan(Emean - Estd, Emean + Estd, color="aquamarine")
+
+plt.axhspan(Emean - 2 * Estd, Emean - Estd, color="lightyellow")
+plt.axhspan(Emean + Estd, Emean + 2 * Estd, color="lightyellow")
+
+plt.axhspan(Emean - 3 * Estd, Emean - 2 * Estd, color="peachpuff")
+plt.axhspan(Emean + 2 * Estd, Emean + 3 * Estd, color="peachpuff")
+plt.grid()
+plt.plot(x_values, E_values, color="black", marker="o")
+
+
+plt.figure()
+plt.title(str(title4) + " " + str(title2))
+plt.yticks([Nmean - 3 * Nstd, Nmean - 2 * Nstd, Nmean - Nstd, Nmean, Nmean + Nstd, Nmean + 2 * Nstd, Nmean + 3 * Nstd])
+plt.xticks(x_values, x_tick, rotation='vertical')
+plt.axhspan(Nmean - Nstd, Nmean + Nstd, color="aquamarine")
+
+plt.axhspan(Nmean - 2 * Nstd, Nmean - Nstd, color="lightyellow")
+plt.axhspan(Nmean + Nstd, Nmean + 2 * Nstd, color="lightyellow")
+
+plt.axhspan(Nmean - 3 * Nstd, Nmean - 2 * Nstd, color="peachpuff")
+plt.axhspan(Nmean + 2 * Nstd, Nmean + 3 * Nstd, color="peachpuff")
+plt.grid()
+plt.plot(x1_values, N_values, color="black", marker="o")
+
+
+plt.figure()
+plt.title(str(title4) + " " + str(title3))
+plt.yticks([ORF1abmean - 3 * ORF1abstd, ORF1abmean - 2 * ORF1abstd, ORF1abmean - ORF1abstd, ORF1abmean, ORF1abmean + ORF1abstd, ORF1abmean + 2 * ORF1abstd, ORF1abmean + 3 * ORF1abstd])
+plt.xticks(x_values, x_tick, rotation='vertical')
+plt.axhspan(ORF1abmean - ORF1abstd, ORF1abmean + ORF1abstd, color="aquamarine")
+
+plt.axhspan(ORF1abmean - 2 * ORF1abstd, ORF1abmean - ORF1abstd, color="lightyellow")
+plt.axhspan(ORF1abmean + ORF1abstd, ORF1abmean + 2 * ORF1abstd, color="lightyellow")
+
+plt.axhspan(ORF1abmean - 3 * ORF1abstd, ORF1abmean - 2 * ORF1abstd, color="peachpuff")
+plt.axhspan(ORF1abmean + 2 * ORF1abstd, ORF1abmean + 3 * ORF1abstd, color="peachpuff")
+plt.grid()
+plt.plot(x2_values, ORF1ab_value, color="black", marker="o")
+
+plt.show()
