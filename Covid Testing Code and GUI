@@ -1,0 +1,118 @@
+import tkinter as tk
+from fileinput import filename
+from tkinter import ttk
+from tkinter import filedialog as fd
+from tkinter.messagebox import showinfo
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import packaging
+import packaging.version
+import packaging.specifiers
+import packaging.requirements
+
+
+# create the root window
+root = tk.Tk()
+root.title('Covid Test App')
+root.resizable(False, False)
+root.geometry('500x400')
+
+
+def select_file():
+
+    namefile = fd.askopenfilename(
+        title='Open a file',
+        initialdir='/',
+        filetypes= (("CSV Files","*.csv"),))
+
+    showinfo(
+        title='Selected File',
+        message=namefile
+
+    )
+    full_path = namefile
+    case_list = []
+    df = pd.read_csv(full_path)
+
+    above38 = df["N"] > 38
+    df.loc[above38, "N"] = 0
+
+    above38_2 = df["E"] > 38
+    df.loc[above38_2, "E"] = 0
+
+    above38_3 = df["RdRp"] > 38
+    df.loc[above38_3, "RdRp"] = 0
+
+    for index, row in df.iterrows():
+            # E, N and RdRp are all 0 - Negative
+        if row["E"] == 0 and row["N"] == 0 and row["RdRp"] == 0:
+            print("Negative")
+            case_list.append("Negative")
+
+            # E and N are 0, RdRp is between 31 and 35 inclusive - Retest
+        elif row["E"] == 0 and row["N"] == 0 and 35 >= row["RdRp"] >= 31:
+            print("Retest")
+            case_list.append("Retest")
+
+            # E and RdRp are 0, N is below 30 or above 36 - Negative
+        elif row["E"] == 0 and 30 >= row["N"] <= 35 and row["RdRp"] == 0:
+            print("Negative")
+            case_list.append("Negative")
+
+            # E and RdRp are 0, N is between 30 and 38 - Retest
+        elif row["E"] == 0 and 30 < row["N"] < 35 and row["RdRp"] == 0:
+            print("Retest")
+            case_list.append("Retest")
+
+            # Only N is zero or only E is zero or only RdRp is zero - Negative
+        elif (row["E"] != 0 and row["N"] == 0 and row["RdRp"] == 0) or \
+                (row["E"] == 0 and row["N"] != 0 and row["RdRp"] == 0) or \
+                (row["E"] == 0 and row["N"] == 0 and row["RdRp"] != 0):
+            print("Negative")
+            case_list.append("Negative")
+
+            # E - N is smaller or equal to 3 or E and larger than 0 - RdRp is smaller or equal to 3 and larger than 0 - Positive
+        elif (3 >= row["E"] - row["N"] > 0) or (3 >= row["RdRp"] - row["N"] > 0):
+            print("Positive")
+            case_list.append("Positive")
+
+            # If E - N is less than 0 or RdRp is less than 0 - Retest
+        elif (row["E"] - row["N"] < 0) or (row["RdRp"] - row["N"] < 0):
+           print("Retest")
+           case_list.append("Retest")
+
+            # E - N is more than 3 or E - RdRp is more than 3 - Retest
+        elif row["E"] - row["N"] > 3 or row["RdRp"] - row["N"] > 3:
+            print("Retest")
+            case_list.append("Retest")
+
+    # Makes graph
+    total = case_list.count("Positive") + case_list.count("Negative") + case_list.count("Retest")
+    p = "Positive" + "\n" + str(case_list.count("Positive")) + " [" + str(
+        round((case_list.count("Positive") / total) * 100, 1)) + "%" + "]"
+    n = "Negative" + "\n" + str(case_list.count("Negative")) + " [" + str(
+        round((case_list.count("Negative") / total) * 100, 1)) + "%" + "]"
+    r = "Retest" + "\n" + str(case_list.count("Retest")) + " [" + str(
+        round((case_list.count("Retest") / total) * 100, 1)) + "%" + "]"
+
+    x = np.array([p, n, r])
+    y = np.array([case_list.count("Positive"), case_list.count("Negative"), case_list.count("Retest")])
+    plt.title("Covid Cases")
+    plt.xlabel("Result of Case")
+    plt.ylabel("Number of Cases")
+    graph = plt.bar(x, y, width=0.5, color=["red", "green", "yellow"])
+    plt.show()
+
+    df["Interpretation"] = pd.Series(case_list)
+    df.to_csv(full_path, index=False)
+
+
+# open button
+open_button = ttk.Button(root, text='Choose a file', command=select_file)
+
+open_button.pack(expand=True)
+
+
+# run the application
+root.mainloop()
