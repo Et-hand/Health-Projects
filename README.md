@@ -6,3 +6,6 @@ I made this for Sterling Pathology in 2022, due to the high volume of patient da
 
 ## Covid GUI
 Also created for Sterling Pathology, patient data came in as csv files with patient id, and three different numbers representing gene counts for specific genes. Sterling had been doing the data analysis by hand: lab professionals would comb through data to find potential positive tests. I created an algorithm that could reliably pick out potential positive tests. Because all tests had to be confirmed by lab professionals, the code was much more sensitive than specific. Additionally, it was my first foray into GUI design. I created a very simple .exe file that could be downloaded, and would take in an uploaded file and return graphs that indicated likely positive tests.
+
+## NGS Secondary Analysis Pipeline
+For my internship at the UCLA Pellegrini Lab, I developed a secondary analysis pipeline for canine genetic mutations, specifically targeting large indels (insertions and deletions). Because these large indels are the cause of the genetic disease of interest in the lab, I set the trims to very sensitive and had a relatively low score threshold. I would run the code on UCLA's dog genome database on Ubuntu and use software to check my final VCF files for captured and annotated indels. I learned a lot about bioinformatics and using Linux during my summer at UCLA. 
