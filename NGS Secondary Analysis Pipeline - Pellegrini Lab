@@ -1,0 +1,29 @@
+export PATH=myPATH
+fastp -i raw_reads.fastq.gz -o trimmed_reads.fastq.gz \
+--detect_adapter_for_pe --trim_front1 10
+--trim_front2 10 --cut_tail --cut_window_size 4 \
+--cut_mean_quality 20 --length_required 30
+bowtie2 -x canfam4 -U trimmed_reads.fastq.gz -S
+aligned.sam \
+--very-sensitive
+
+samtools view -bS aligned.sam | samtools sort -o
+sorted.bam
+picard AddOrReplaceReadGroups I=sorted.bam
+O=sorted_rg.bam RGID=1 RGLB=lib1
+RGPL=ILLUMINA RGPU=unit1 RGSM=sample1
+
+picard MarkDuplicates I=sorted_rg.bam O=dedup.bam
+M=metrics.txt
+samtools index dedup.bam
+samtools faidx reference_genome.fasta
+java -jar picard.jar CreateSequenceDictionary
+R=reference_genome.fasta O=reference_genome.dict
+gatk BaseRecalibrator -I dedup.bam -R
+reference_genome.fasta --known-sites known_sites.vcf
+-O recal_data.table
+gatk ApplyBQSR -R reference_genome.fasta -I
+dedup.bam --bqsr-recal-file recal_data.table -O recal.bam
+gatk HaplotypeCaller -R reference_genome.fasta -I
+recal.bam -O output.vcf
+snpEff ann hg19 output.vcf > output_annotated.vcf
